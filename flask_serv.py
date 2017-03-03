@@ -32,43 +32,63 @@ def categorize(c):
 @app.route("/")
 def hello():
     
-    already_present = []    
-    images_present = firebase.get('/image_ans', None)
-     
-    if (images_present != None ) :
-        for img in images_present: 
-            #print images_present[img]
-            images_present[img] = json.loads(images_present[img])
-            already_present.append(images_present[img]['img_id'])
-    
+    already_present = []   
     images = firebase.get('/Images', None)
+    images_present = firebase.get('/image_ans', None)
+    if images_present == None:
+        mylen = 0
+    else:
+        mylen = len(images_present)
+   
     
-    for img in images:
-        if img in already_present : 
-            print 'already present'
-            continue
+    
+    
+    
+    
+    while( mylen < len(images) ):
         
-        print images[img]['latitude'], images[img]['longitude']
-        #print images[img]['imageUrl']
-        
-        img_url =     images[img]['imageUrl']   
-        
-        res = (json.dumps(visual_recognition.classify(images_url = img_url), indent=2))
-        c = json.loads(res)
-        garbage = categorize(json.loads(res))
-        lat =       images[img]['latitude']
-        longi  =       images[img]['longitude']
-        img_id = img
-        
-        print 'ans is ', garbage
-        data = {'img_id': img_id, 'lat': lat, 'longi' : longi,  'garbage': garbage}
-        sent = json.dumps(data)
-        result = firebase.post("/image_ans", sent)
-        print 'inserted'
+        images_present = firebase.get('/image_ans', None)
+        if images_present == None:
+            mylen = 0
+        else:
+            mylen = len(images_present)
+            
+        if (images_present != None ) :
+            for img in images_present: 
+                #print images_present[img]
+                images_present[img] = json.loads(images_present[img])
+                already_present.append(images_present[img]['img_id'])
+
+
+        for img in images:
+            try:
+                if img in already_present : 
+                    print 'already present'
+                    continue
+
+                print images[img]['latitude'], images[img]['longitude']
+                #print images[img]['imageUrl']
+
+                img_url =     images[img]['imageUrl']   
+
+                res = (json.dumps(visual_recognition.classify(images_url = img_url), indent=2))
+                c = json.loads(res)
+                garbage = categorize(json.loads(res))
+                lat =       images[img]['latitude']
+                longi  =       images[img]['longitude']
+                img_id = img
+
+                print 'ans is ', garbage
+                data = {'img_id': img_id, 'lat': lat, 'longi' : longi,  'garbage': garbage}
+                sent = json.dumps(data)
+                result = firebase.post("/image_ans", sent)
+                print 'inserted'
+            except:
+                continue
         
     
     return 'success'
  
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 80))
     app.run(host='0.0.0.0', port=port)
