@@ -1,1 +1,1 @@
-web: python dealscraper/flask_serv.py
+web: python flask_serv.py
