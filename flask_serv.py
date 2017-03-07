@@ -1,4 +1,4 @@
-myapi = '2cba536a956bea45ab154761e21c770e66c92c80'
+myapi = 'abc'
 #print myapi
 import json 
 from watson_developer_cloud import VisualRecognitionV3
